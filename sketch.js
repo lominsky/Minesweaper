@@ -43,7 +43,7 @@ function draw() {
   drawGrid();
   if(win && !lose) {
     drawWin();
-  } else {
+  } else if (!lose){
     checkWin();
   }
 }
@@ -219,6 +219,7 @@ function checkWin() {
       var userInfo = getUserInfo();
       var id = (Math.random().toString(36)+'00000000000000000').slice(2, 16+2);
       var name = prompt("You won! Enter your name:");
+      if (name == undefined) name="";
 
       database.ref('wins/' + id).set({
         timestamp: firebase.database.ServerValue.TIMESTAMP,
