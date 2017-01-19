@@ -9,7 +9,19 @@ var win = false;
 var startTime;
 var stopTime;
 var remainingSquares = gridSize * gridSize;
+var win_data;
+var sorted_data = [];
 
+// Initialize Firebase
+var config = {
+  apiKey: "AIzaSyCzkDVvWLLuotosLP3ikNiXYqPI_L3oyds",
+  authDomain: "minesweaper-9d88d.firebaseapp.com",
+  databaseURL: "https://minesweaper-9d88d.firebaseio.com",
+  storageBucket: "minesweaper-9d88d.appspot.com",
+  messagingSenderId: "560677215375"
+};
+firebase.initializeApp(config);
+var database = firebase.database();
 
 function setup() {
   createCanvas(gridSize * squareSize + 5, gridSize * squareSize + 5);
@@ -202,6 +214,22 @@ function checkWin() {
   if(count == numMines) {
     win = true;
     stopTime = millis();
+    var time = parseInt(stopTime - startTime);
+    if(sorted_data.length < 10 || time < sorted_data[sorted_data.length-1].seconds) {
+      var userInfo = getUserInfo();
+      var id = (Math.random().toString(36)+'00000000000000000').slice(2, 16+2);
+      var name = prompt("You won! Enter your name:");
+
+      database.ref('wins/' + id).set({
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        name: name,
+        seconds: time
+      });
+      database.ref('users/' + id).set({
+        user_info: userInfo
+      });
+      getRecords();
+    }
   }
 }
 
@@ -216,6 +244,9 @@ function mousePressed() {
 }
 
 function keyPressed() {
+  if(keyCode == ESCAPE) {
+    //console.log(win_data);
+  }
   if(keyCode == BACKSPACE) {
     isClicked = [];
     square = [];
@@ -224,15 +255,93 @@ function keyPressed() {
     win = false;
     remainingSquares = gridSize * gridSize;
     setup();
+    getRecords();
   }
   if(!lose && !win) {
     if(mouseX >= 0 && mouseY >= 0 && mouseX < gridSize * squareSize && mouseY < gridSize * squareSize) {
       var x = parseInt(mouseX / squareSize);
       var y = parseInt(mouseY / squareSize);
       if(key == ' ') {
-        console.log("space pressed");
         markSquare(x, y);
       }
     }
   }
+}
+
+function getRecords() {
+  sorted_data = [];
+  database.ref('/wins').orderByChild("seconds").limitToFirst(10).once('value').then(function(snapshot) {
+    snapshot.forEach(function(child) {
+        sorted_data.push(child.val()) // NOW THE CHILDREN PRINT IN ORDER
+    });
+     //win_data = snapshot.val();
+     generateTable();
+  });
+}
+
+function generateTable() {
+  var scoreTable = document.getElementById("score_table");
+  while (scoreTable.firstChild) {
+      scoreTable.removeChild(scoreTable.firstChild);
+  }
+  var row = document.createElement("tr");
+  var c1 = document.createElement("td");
+  var c2 = document.createElement("td");
+  var c3 = document.createElement("td");
+  var c4 = document.createElement("td");
+  c1.innerHTML = "<b>Number</b>";
+  c2.innerHTML = "<b>Name</b>";
+  c3.innerHTML = "<b>Time</b>";
+  c4.innerHTML = "<b>Date</b>";
+  row.appendChild(c1);
+  row.appendChild(c2);
+  row.appendChild(c3);
+  row.appendChild(c4);
+  scoreTable.appendChild(row);
+  for(var i = 0; i < sorted_data.length; i++) {
+    var row = document.createElement("tr");
+    var c1 = document.createElement("td");
+    var c2 = document.createElement("td");
+    var c3 = document.createElement("td");
+    var c4 = document.createElement("td");
+    c1.innerHTML = i+1;
+    c2.innerHTML = sorted_data[i].name;
+    c3.innerHTML = sorted_data[i].seconds/1000 + " seconds";
+    var timestamp = new Date(sorted_data[i].timestamp);
+    c4.innerHTML = timestamp.toDateString();
+    row.appendChild(c1);
+    row.appendChild(c2);
+    row.appendChild(c3);
+    row.appendChild(c4);
+    scoreTable.appendChild(row);
+  }
+}
+
+function getUserInfo() {
+  var userInfo={
+    pageon: window.location.pathname + "",
+    referrer: document.referrer + "",
+    previousSites: history.length + "",
+    browserName: navigator.appName + "",
+    browserEngine: navigator.product + "",
+    browserVersion1a: navigator.appVersion + "",
+    browserVersion1b: navigator.userAgent + "",
+    browserLanguage: navigator.language + "",
+    browserOnline: navigator.onLine + "",
+    browserPlatform: navigator.platform + "",
+    dataCookiesEnabled: navigator.cookieEnabled + "",
+    dataCookies1: document.cookie + "",
+    dataStorage: localStorage + "",
+    sizeScreenW: screen.width + "",
+    sizeScreenH: screen.height + "",
+    sizeDocW: document.width + "",
+    sizeDocH: document.height + "",
+    sizeInW: innerWidth + "",
+    sizeInH: innerHeight + "",
+    sizeAvailW: screen.availWidth + "",
+    sizeAvailH: screen.availHeight + "",
+    scrColorDepth: screen.colorDepth + "",
+    scrPixelDepth: screen.pixelDepth + "",
+    };
+    return userInfo;
 }
