@@ -15,8 +15,16 @@
 	table {
 	    font-family: arial, sans-serif;
 	    border-collapse: collapse;
-	    position: absolute;
-	   	right: 200px;
+	}
+
+	#rules {
+		position: absolute;
+	   	left: 550px;
+	}
+
+	#highscore {
+		position: absolute;
+		left: 900px;
 	}
 
 	td, th {
@@ -32,7 +40,16 @@
 </head>
 
 <body style="margin:25px" onload="getRecords()">
-	<table id="score_table">
-	</table>
+	<div id="rules">
+		<h2>How to Play</h2>
+		<p>Click on a square to reveal it.<br><br>
+		Hover over a square and press space to flag it<br>as a potential mine.<br><br>
+		Reveal all the non-mine squares to win.</p>
+	</div>
+	<div id="highscore">
+		<h2>High scores from the past day</h2>
+		<table id="score_table">
+		</table>
+	</div>
 </body>
 </html>

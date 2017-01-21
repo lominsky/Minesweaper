@@ -317,14 +317,14 @@ function generateTable() {
   var c2 = document.createElement("td");
   var c3 = document.createElement("td");
   var c4 = document.createElement("td");
-  c1.innerHTML = "<b>Number</b>";
+  c1.innerHTML = "<b>#</b>";
   c2.innerHTML = "<b>Name</b>";
-  c3.innerHTML = "<b>Time</b>";
-  c4.innerHTML = "<b>Date</b>";
+  c3.innerHTML = "<b>Record</b>";
+  c4.innerHTML = "<b>Time</b>";
   row.appendChild(c1);
   row.appendChild(c2);
   row.appendChild(c3);
-  row.appendChild(c4);
+  // row.appendChild(c4);
   scoreTable.appendChild(row);
   for(var i = 0; i < sorted_data.length; i++) {
     var row = document.createElement("tr");
@@ -334,13 +334,13 @@ function generateTable() {
     var c4 = document.createElement("td");
     c1.innerHTML = i+1;
     c2.innerHTML = sorted_data[i].name;
-    c3.innerHTML = sorted_data[i].seconds/1000 + " seconds";
+    c3.innerHTML = sorted_data[i].seconds/1000 + " seconds&nbsp;&nbsp;&nbsp;&nbsp;";
     var timestamp = new Date(sorted_data[i].timestamp);
-    c4.innerHTML = timestamp.toDateString();
+    c4.innerHTML = timestamp.toTimeString().substring(0, 8);
     row.appendChild(c1);
     row.appendChild(c2);
     row.appendChild(c3);
-    row.appendChild(c4);
+    // row.appendChild(c4);
     scoreTable.appendChild(row);
   }
 }
