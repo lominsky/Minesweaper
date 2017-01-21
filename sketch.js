@@ -218,7 +218,7 @@ function checkWin() {
     if(sorted_data.length < 10 || time < sorted_data[sorted_data.length-1].seconds) {
       var userInfo = getUserInfo();
       var id = (Math.random().toString(36)+'00000000000000000').slice(2, 16+2);
-      var name = prompt("You won! Enter your name:");
+      var name = prompt("You got a high score of " + time/1000 + " seconds!\n\nEnter your name:");
       if (name == undefined) name="";
 
       database.ref('wins/' + id).set({
@@ -230,6 +230,7 @@ function checkWin() {
         user_info: userInfo
       });
       getRecords();
+      location.reload();
     }
   }
 }
@@ -271,13 +272,39 @@ function keyPressed() {
 
 function getRecords() {
   sorted_data = [];
-  database.ref('/wins').orderByChild("seconds").limitToFirst(10).once('value').then(function(snapshot) {
+  var date = new Date();
+  var now = date.valueOf();
+  var then = now - 1000 * 60 * 60 * 24;
+  database.ref('/wins').orderByChild("timestamp").startAt(then).endAt(now).once('value').then(function(snapshot) {
     snapshot.forEach(function(child) {
         sorted_data.push(child.val()) // NOW THE CHILDREN PRINT IN ORDER
     });
      //win_data = snapshot.val();
+     sortData();
      generateTable();
   });
+}
+
+function sortData() {
+  var temp = []
+  for(var i = 0; i < sorted_data.length; i++) {
+    temp.push(sorted_data[i]);
+  }
+  sorted_data = [];
+
+  while(temp.length > 0 && sorted_data.length < 10) {
+    var min = temp[0].seconds;
+    var index = 0;
+
+    for(var i = 0; i < temp.length; i++) {
+      if(temp[i].seconds < min) {
+        min = temp[i].seconds;
+        index = i;
+      }
+    }
+    sorted_data.push(temp[index]);
+    temp.splice(index, 1);
+  }
 }
 
 function generateTable() {
